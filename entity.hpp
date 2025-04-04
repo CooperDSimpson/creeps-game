@@ -159,7 +159,7 @@ public:
         y = static_cast<int>(true_y);
 
         // Add a buffer zone near walls
-        const double WALL_BUFFER = 0.05; // A small buffer to keep entity away from walls
+        //const double WALL_BUFFER = 0.05; // A small buffer to keep entity away from walls
 
         // Check if we're too close to walls and adjust position if needed
         for (int dy = -1; dy <= 1; dy++) {
@@ -179,12 +179,12 @@ public:
                     double dist_x = std::abs(true_x - check_x);
                     double dist_y = std::abs(true_y - check_y);
 
-                    if (dist_x < WALL_BUFFER && dx != 0) {
-                        true_x += (dx < 0) ? WALL_BUFFER : -WALL_BUFFER;
-                    }
-                    if (dist_y < WALL_BUFFER && dy != 0) {
-                        true_y += (dy < 0) ? WALL_BUFFER : -WALL_BUFFER;
-                    }
+                    //if (dist_x < WALL_BUFFER && dx != 0) {
+                    //    true_x += (dx < 0) ? WALL_BUFFER : -WALL_BUFFER;
+                    //}
+                    //if (dist_y < WALL_BUFFER && dy != 0) {
+                    //    true_y += (dy < 0) ? WALL_BUFFER : -WALL_BUFFER;
+                    //}
                 }
             }
         }

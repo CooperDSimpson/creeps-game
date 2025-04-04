@@ -17,6 +17,8 @@
 #include "creep.hpp"
 #include "tile.hpp"
 #include "tiletypes.hpp"
+#include "pickup.hpp"
+#include "churchill.hpp"
 
 // Aspect ratio 16:9
 int screen_width = 157;
@@ -45,7 +47,7 @@ void doTestScreen(CHAR_INFO*& screen) {
 	}
 }
 
-void loadMapToScreen(CHAR_INFO*& screen, World& world, Player& player, std::vector<Creep>& creeps) {
+void loadMapToScreen(CHAR_INFO*& screen, World& world, Player& player, std::vector<Creep>& creeps, std::vector<Pickup>& pickups) {
 
 	int half_screen_width = screen_width / 2;
 	int half_screen_height = screen_height / 2;
@@ -59,6 +61,13 @@ void loadMapToScreen(CHAR_INFO*& screen, World& world, Player& player, std::vect
 			int world_y = player.y + (y - half_screen_height);
 
 			if (world_y >= 0 && world_y < world.world_height && world_x >= 0 && world_x < world.world_width) {
+				//for (Pickup pickup : pickups) {
+				//	if (world_y == pickup.y_pos && world_x == pickup.x_pos) {
+				//		screen[y * screen_width + x].Char.UnicodeChar = pickup.item.graphic;
+				//		screen[y * screen_width + x].Attributes = FG_YELLOW;
+				//	}
+				//}
+
 				if (world_y == player.y && world_x == player.x) {
 					// Render the player
 					screen[y * screen_width + x].Char.UnicodeChar = player.entity_graphic;
@@ -70,14 +79,6 @@ void loadMapToScreen(CHAR_INFO*& screen, World& world, Player& player, std::vect
 					screen[y * screen_width + x].Char.UnicodeChar = world.grid[world_y][world_x].map_revealed_graphic;
 					screen[y * screen_width + x].Attributes = world.grid[world_y][world_x].map_revealed_graphic_color;
 				}
-
-				for (Creep creep : creeps) {
-					if (world_y == creep.y && world_x == creep.x) {
-						// Render the creep
-						screen[y * screen_width + x].Char.UnicodeChar = creep.entity_graphic;
-						screen[y * screen_width + x].Attributes = creep.entity_graphic_color;
-					}
-				}
 			}
 			else {
 				// Render an out-of-bounds character
@@ -86,6 +87,33 @@ void loadMapToScreen(CHAR_INFO*& screen, World& world, Player& player, std::vect
 			}
 		}
 	}
+
+	for (Creep creep : creeps) {
+		// Convert world position to screen position
+		int screen_x = creep.x - player.x + half_screen_width;
+		int screen_y = creep.y - player.y + half_screen_height;
+
+		// Ensure the creep is within screen bounds before drawing
+		if (screen_x >= 0 && screen_x < screen_width && screen_y >= 0 && screen_y < screen_height) {
+			screen[screen_y * screen_width + screen_x].Char.UnicodeChar = creep.entity_graphic;
+			screen[screen_y * screen_width + screen_x].Attributes = creep.entity_graphic_color;
+		}
+	}
+
+	for (Pickup pickup : pickups) {
+		int screen_x = pickup.x_pos - player.x + half_screen_width;
+		int screen_y = pickup.y_pos - player.y + half_screen_height;
+
+		// Ensure the creep is within screen bounds before drawing
+		if (screen_x >= 0 && screen_x < screen_width && screen_y >= 0 && screen_y < screen_height) {
+			screen[screen_y * screen_width + screen_x].Char.UnicodeChar = pickup.item.graphic;
+			screen[screen_y * screen_width + screen_x].Attributes = FG_YELLOW;
+		}
+	}
+
+	screen[half_screen_height * screen_width + half_screen_width].Char.UnicodeChar = player.entity_graphic;
+	screen[half_screen_height * screen_width + half_screen_width].Attributes = player.entity_graphic_color;
+
 }
 
 int main() {
@@ -107,6 +135,7 @@ int main() {
 	Player player;
 	srand(time(0));
 	std::vector<Creep> creeps;
+	std::vector<Pickup> pickups;
 
 	Creep tempcreep;
 	world.build();
@@ -118,11 +147,17 @@ int main() {
 		creeps.push_back(tempcreep);
 	}
 
-	// Start the mouse tracking thread
 
+	for (int i = 0; i < 10; i++) {
+		pickups.push_back(Pickup{.x_pos = rand() % world.world_width, .y_pos = rand() % world.world_height});
+	}
+
+	// Start the mouse tracking thread
+	auto currentTime = clock::now();
+	Pickup p;
 	int i = 0;
 	while (true) {
-		auto currentTime = clock::now();
+		currentTime = clock::now();
 		const std::chrono::duration<double> target_frame_duration(1.0 / 240.0); // Target frame duration for 240 FPS
 		std::chrono::duration<double> delta_time = currentTime - lastTime;
 		lastTime = currentTime;
@@ -240,10 +275,20 @@ int main() {
 				goto death;
 			}
 
-			creeps.at(i).pursue(player, world);
+			creeps.at(i).pursue_position(player.x, player.y, world);
 		}
+		
+		for (int i = 0; i < pickups.size(); i++) {
+			p = pickups.at(i);
+
+			if (p.x_pos == player.x && p.y_pos == player.y) {
+				pickups.erase(pickups.begin() + i);
+				i--;
+			}
+		}
+
 		player.move(world.world_height, world.world_width, delta_time.count(), world);
-		loadMapToScreen(screen, world, player, creeps);
+		loadMapToScreen(screen, world, player, creeps, pickups);
 		COORD bufferSize = { screen_width, screen_height };
 		COORD bufferCoord = { 0, 0 };
 		SMALL_RECT writeRegion = { 0, 0, screen_width - 1, screen_height - 1 };

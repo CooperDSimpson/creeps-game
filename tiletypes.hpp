@@ -1,6 +1,8 @@
 ﻿#pragma once;
 
 #include "tile.hpp"
+#include "item.hpp"
+#include "pickup.hpp"
 
 Tile wall = { Tile{.map_revealed_graphic = 0x2588, .solid = 1} };
 Tile empty = { Tile{.map_revealed_graphic = L'.', .empty_ = true, .solid = 0} };

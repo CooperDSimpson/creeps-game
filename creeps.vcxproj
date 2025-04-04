@@ -131,10 +131,12 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="churchill.hpp" />
     <ClInclude Include="colors.hpp" />
     <ClInclude Include="creep.hpp" />
     <ClInclude Include="entity.hpp" />
     <ClInclude Include="item.hpp" />
+    <ClInclude Include="pickup.hpp" />
     <ClInclude Include="player.hpp" />
     <ClInclude Include="tile.hpp" />
     <ClInclude Include="tiletypes.hpp" />

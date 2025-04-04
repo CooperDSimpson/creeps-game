@@ -139,14 +139,14 @@ public:
         }
     }
 
-    void pursue(Player& player, World& world_map) {
+    void pursue_position(int pos_x, int pos_y, World& world_map) {
         if (do_wander) {
             wander(world_map);
             return;
         };
 
-        target_x = player.x;
-        target_y = player.y;
+        target_x = pos_x;
+        target_y = pos_y;
 
         auto path = a_star(x, y, target_x, target_y, world_map);
         if (path.size() > 1) {

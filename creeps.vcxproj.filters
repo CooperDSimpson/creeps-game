@@ -44,5 +44,11 @@
     <ClInclude Include="tiletypes.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="pickup.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="churchill.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
