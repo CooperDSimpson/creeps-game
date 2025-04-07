@@ -4,7 +4,9 @@
 #include <string>
 #include <Windows.h>
 #include "item.hpp"
+
 #include "tile.hpp"
+#include "world.hpp"
 #include "colors.hpp"
 
 class Entity {

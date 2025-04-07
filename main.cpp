@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <chrono>
 #include "colors.hpp"
+#include "vehicle.hpp"
 #include "world.hpp"
 #include "player.hpp"
 #include "creep.hpp"
@@ -36,6 +37,45 @@ const int MAX_AGGRESSION = 10;
 int aggression = 0;
 bool go_thread = true;
 bool angered = false;
+
+Vehicle player_vehicle;
+VehicleBuilder* vehicle_builder = nullptr;
+bool in_vehicle = false;
+bool vehicle_build_mode = false;
+
+void handleVehicleInput(Vehicle& vehicle, double delta_time) {
+	if (!vehicle.isEngineRunning()) {
+		if (GetAsyncKeyState('E') & 0x8000) {
+			vehicle.toggleEngine();
+			Sleep(200); // Debounce key press
+		}
+	}
+	else {
+		if (GetAsyncKeyState('W') & 0x8000) {
+			vehicle.accelerate(30 * delta_time);
+		}
+		if (GetAsyncKeyState('S') & 0x8000) {
+			vehicle.accelerate(-15 * delta_time);
+		}
+		if (GetAsyncKeyState('A') & 0x8000) {
+			vehicle.turn(-1);
+		}
+		if (GetAsyncKeyState('D') & 0x8000) {
+			vehicle.turn(1);
+		}
+		if (GetAsyncKeyState('E') & 0x8000) {
+			vehicle.toggleEngine();
+			Sleep(200); // Debounce key press
+		}
+	}
+
+	// Enter build mode
+	if (GetAsyncKeyState('B') & 0x8000) {
+		vehicle.enterBuildMode();
+		vehicle_build_mode = true;
+		Sleep(200); // Debounce key press
+	}
+}
 
 void doTestScreen(CHAR_INFO*& screen) {
 	for (int y = 0; y < screen_height + status_size; y++) {
@@ -111,6 +151,14 @@ void loadMapToScreen(CHAR_INFO*& screen, World& world, Player& player, std::vect
 		}
 	}
 
+	if (!vehicle_build_mode) {
+		player_vehicle.render(screen, player.x, player.y, screen_width, screen_height);
+	}
+
+	if (vehicle_build_mode && vehicle_builder) {
+		vehicle_builder->render(screen, player.x, player.y, screen_width, screen_height);
+	}
+
 	screen[half_screen_height * screen_width + half_screen_width].Char.UnicodeChar = player.entity_graphic;
 	screen[half_screen_height * screen_width + half_screen_width].Attributes = player.entity_graphic_color;
 
@@ -151,6 +199,9 @@ int main() {
 	for (int i = 0; i < 10; i++) {
 		pickups.push_back(Pickup{.x_pos = rand() % world.world_width, .y_pos = rand() % world.world_height});
 	}
+
+	player_vehicle.set_position(player.x + 5, player.y + 5);
+	vehicle_builder = new VehicleBuilder(player_vehicle);
 
 	// Start the mouse tracking thread
 	auto currentTime = clock::now();
@@ -246,11 +297,47 @@ int main() {
 					angered = 0;
 					aggression = 0;
 				}
-				if (GetAsyncKeyState(VK_ESCAPE)) {
+				if (GetAsyncKeyState(VK_DELETE)) {
 					goto end;
 				}
 
 			}
+		}
+
+		if (player.x == player_vehicle.x && player.y == player_vehicle.y && !in_vehicle) {
+			// Player is at vehicle location
+			if (GetAsyncKeyState('F') & 0x8000) {
+				in_vehicle = true;
+				Sleep(200); // Debounce key press
+			}
+		}
+
+		if (in_vehicle) {
+			// Handle vehicle controls
+			if (vehicle_build_mode) {
+				vehicle_builder->handleInput();
+			}
+			else {
+				handleVehicleInput(player_vehicle, delta_time.count());
+			}
+
+			// Exit vehicle
+			if (GetAsyncKeyState('F') & 0x8000 && !vehicle_build_mode) {
+				in_vehicle = false;
+				player.set_position(player_vehicle.x, player_vehicle.y);
+				Sleep(200); // Debounce key press
+			}
+
+			// Exit build mode
+			if (vehicle_build_mode && !player_vehicle.in_building_mode) {
+				vehicle_build_mode = false;
+			}
+
+			// Move vehicle
+			player_vehicle.move(world.world_height, world.world_width, delta_time.count(), world);
+
+			// If in vehicle, set player position to vehicle position for camera tracking
+			player.set_position(player_vehicle.x, player_vehicle.y);
 		}
 
 		if (aggression > MAX_AGGRESSION) {
@@ -307,7 +394,9 @@ int main() {
 
 	std::wcout << "game over.";
 
-	end:
+end:
+
+	delete vehicle_builder;
 
 	return 0;
 }
