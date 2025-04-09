@@ -16,15 +16,17 @@ The Author grants You a non-exclusive, non-transferable, royalty-free license to
 ## 4. Attribution Requirement
 Any usage of the Software, including modified versions, must include the following attribution in documentation, user interfaces, or source code:
 
-```
 This software was created by CS Syntek LLC. Used under the Non-Commercial Software License.
-```
+
 
 ## 5. No Warranty
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE.
 
 ## 6. Termination
 Any violation of these terms immediately terminates this license. Upon termination, you must cease all use and distribution of the Software.
+
+## 7. License Modifications
+The Author may modify this license at any time without notice. You are solely responsible for ensuring compliance with the most current version. Continued use of the Software after any such changes shall be deemed acceptance of the new terms.
 
 ---
 © CS Syntek LLC. All rights reserved.
