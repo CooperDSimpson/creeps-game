@@ -1,4 +1,4 @@
-﻿#pragma once;
+﻿#pragma once
 
 #include "tile.hpp"
 #include "item.hpp"

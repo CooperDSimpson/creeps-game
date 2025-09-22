@@ -1,28 +1,23 @@
-﻿#include <atomic>
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <Windows.h>
-#include <thread>
 #include <iostream>
 #include <vector>
-#include <utility>
 #include <io.h>      
 #include <fcntl.h>   
 #include <chrono>
-#include <thread>
-#include <algorithm>
 #include <chrono>
+#include <algorithm>
+
 #include "colors.hpp"
 #include "world.hpp"
 #include "player.hpp"
 #include "creep.hpp"
-#include "tile.hpp"
 #include "tiletypes.hpp"
 #include "pickup.hpp"
-#include "churchill.hpp"
 
 // Aspect ratio 16:9
-int screen_width = 157;
-int screen_height = 48;
+SHORT screen_width = 157;
+SHORT screen_height = 48;
 
 int status_size = 0;
 
@@ -291,7 +286,7 @@ int main() {
 		loadMapToScreen(screen, world, player, creeps, pickups);
 		COORD bufferSize = { screen_width, screen_height };
 		COORD bufferCoord = { 0, 0 };
-		SMALL_RECT writeRegion = { 0, 0, screen_width - 1, screen_height - 1 };
+		SMALL_RECT writeRegion = { 0, 0, static_cast<SHORT>(screen_width - 1), static_cast<SHORT>(screen_height - 1)};
 		WriteConsoleOutput(hConsole, screen, bufferSize, bufferCoord, &writeRegion);
 		i++;
 		auto frame_time = std::chrono::high_resolution_clock::now() - currentTime;

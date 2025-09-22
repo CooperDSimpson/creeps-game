@@ -1,9 +1,9 @@
 ﻿#pragma once
-#include <iostream>;
-#include <cmath>;
-#include <string>;
+#include <iostream>
+#include <cmath>
+#include <string>
 #include <Windows.h>
-#include "colors.hpp";
+#include "colors.hpp"
 
 struct Tile {
 public:
